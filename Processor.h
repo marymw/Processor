@@ -16,14 +16,29 @@ const char OUT[]  = {'o', 'u', 't', '\0'};
 const char VER[]  = {'v', 'e', 'r', '\0'};
 const char DMP[]  = {'d', 'm', 'p', '\0'};
 
+//sin cos sqrt
+
 enum Errors1 {
 	//NO_ERRORS,			//0
 	COMMAND_ENTRY_ERROR //1
 };
 
-int GetCommand    (char *command, double *paramPtr, int *typeOfCommand);
-int DefineCommand (char *command, int *selector);
-int IsEqualCommand(const char *firstCommand, const char *secondCommand);
-int DoCommand     (Stack *MyStack, int selector, int typeOfCommand, double param);
+enum CommandsOfCalculator{
+	CMD_HLT  = 0,
+	CMD_PUSH = 1,
+	CMD_POP  = 2,
+	CMD_ADD  = 3,
+ 	CMD_SUB  = 4,
+	CMD_MULT = 5,
+	CMD_DIV  = 6,
+	CMD_OUT  = 7,
+	CMD_VER  = 8,
+	CMD_DMP  = 9
+};
 
-#endif
+
+
+//const int MAX_LEN_OF_CODE_ARRAY = 200;//норм???
+
+int DoCommand(Stack *someStackPtr, int *code, const int sizeOfFile);
+#endif PROC_H
