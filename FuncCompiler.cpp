@@ -44,6 +44,9 @@ int DefineCommand(char *command, int *selectorPtr){
 		*selectorPtr = CMD_DMP;
 		return NO_ERRORS;
 	}
+	else{
+		printf("Неверная команда\n");
+	}
 	*selectorPtr = -1;
 	return NO_ERRORS;
 }
