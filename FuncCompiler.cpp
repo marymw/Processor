@@ -115,10 +115,8 @@ int DecomposeToCodeArray(MyString *indexPtr, int *codePtr, int numberOfStrings, 
 }
 
 int PrintToCodeFile(int *codePtr, int instructionPtr){
-	FILE *codeFile = fopen("code.txt", "w");
-	for (int i = 0; i <= instructionPtr; i++){
-		fprintf(codeFile, "%d\n", codePtr[i]);	
-	}
-	
+	FILE *codeFile = fopen("codeBin.bin", "wb");
+		fwrite(codePtr, sizeof(int), instructionPtr, codeFile);
+	fclose(codeFile);
 	return 0;
 }
