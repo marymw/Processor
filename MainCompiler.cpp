@@ -2,6 +2,7 @@
 #include "Processor.h"
 #include "HeadOneg.h"
 #include "Compiler.h"
+#include <stdlib.h>
 
 int main(int argc, char *argv[]) {
 
@@ -9,7 +10,7 @@ int main(int argc, char *argv[]) {
 
 	FILE *asmFile = fopen(ASM_FILE, "r");
 
-	int *code = (int *)calloc(MAX_LEN_OF_CODE_ARRAY, sizeof(int));
+	int *code = (int *)calloc(100, sizeof(int));
 
 	MyString *index  = nullptr;											
 	char     *buffer = nullptr;	
@@ -20,12 +21,16 @@ int main(int argc, char *argv[]) {
 	int numberOfStrings = DecomposeToIndex(&index, &buffer);
 
 	int instructionPtr = 0;
-	
+
 	int statusDecomposeToCodeArray = DecomposeToCodeArray(index, code, numberOfStrings, &instructionPtr);
 	assert(statusDecomposeToCodeArray == 0);
 
 	int statusPrintToCodeFile = PrintToCodeFile(code, instructionPtr);
 	assert(statusPrintToCodeFile == 0);
+	free(code);
+	
+	free(index);
+	free(buffer);
 
 	fclose(asmFile);
 	return 0;
