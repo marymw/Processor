@@ -1,9 +1,8 @@
 #include "Processor.h"
 
-int DecomposeToAsmBuffer(int* code, int sizeOfFile, FILE *decodeFile){
+int DecomposeToAsmBuffer(char* code, int sizeOfFile, FILE *decodeFile){
 
 	int instructionPtr = 0;
-	int bufPtr = 0;
 
 	while(instructionPtr <= sizeOfFile){
 
@@ -18,8 +17,8 @@ int DecomposeToAsmBuffer(int* code, int sizeOfFile, FILE *decodeFile){
 
 			case CMD_PUSH: {
 				fprintf(decodeFile, "push ");
-				fprintf(decodeFile, "%d", code[instructionPtr + 1]);
-				instructionPtr += 2;
+				fprintf(decodeFile, "%d", *(int *)(code + instructionPtr + 1));
+				instructionPtr += 5;
 				fprintf(decodeFile, "\n");
 				break;
 			}
@@ -87,3 +86,4 @@ int DecomposeToAsmBuffer(int* code, int sizeOfFile, FILE *decodeFile){
 	return 0;
 
 }
+
