@@ -67,7 +67,7 @@ int IsEqualCommand (const char *firstCommand, const char *secondCommand){
 	return 0;
 }
 
-int DecomposeToCodeArray(MyString *indexPtr, int *codePtr, int numberOfStrings, int *instructionPtr) {
+int DecomposeToCodeArray(MyString *indexPtr, char *codePtr, int numberOfStrings, int *instructionPtr) {
 	
 	assert(indexPtr);
 	
@@ -102,7 +102,11 @@ int DecomposeToCodeArray(MyString *indexPtr, int *codePtr, int numberOfStrings, 
 			}
 		
 			codePtr[(*instructionPtr)++] = selector;
-			codePtr[(*instructionPtr)++] = param;
+			*((int *)(&codePtr[(*instructionPtr)])) = param;
+			// int ip = *instructionPtr;
+			// int *p = (int *)codePtr + ip;
+			// *p = param;
+			(*instructionPtr)+=4;
 		}
 
 		else {
@@ -114,9 +118,9 @@ int DecomposeToCodeArray(MyString *indexPtr, int *codePtr, int numberOfStrings, 
 	return 0;
 }
 
-int PrintToCodeFile(int *codePtr, int instructionPtr){
+int PrintToCodeFile(char *codePtr, int instructionPtr){
 	FILE *codeFile = fopen("codeBin.bin", "wb");
-		fwrite(codePtr, sizeof(int), instructionPtr, codeFile);
+		fwrite(codePtr, sizeof(char), instructionPtr, codeFile);
 	fclose(codeFile);
 	return 0;
 }
