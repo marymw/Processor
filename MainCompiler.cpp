@@ -1,10 +1,3 @@
-#include <stdio.h>
-#include "Processor.h"
-#include "HeadOneg.h"
-#include "Compiler.h"
-#include <stdio.h>
-#include "Processor.h"
-#include "HeadOneg.h"
 #include "Compiler.h"
 #include <stdlib.h>
 
@@ -14,7 +7,7 @@ int main(int argc, char *argv[]) {
 
 	FILE *asmFile = fopen(ASM_FILE, "rb");
 
-	int *code = (int *)calloc(100, sizeof(int));
+	char *code = (char *)calloc(100, sizeof(char));
 
 	MyString *index  = nullptr;											
 	char     *buffer = nullptr;	
@@ -40,4 +33,5 @@ int main(int argc, char *argv[]) {
 	return 0;
 
 }
+
 
