@@ -2,13 +2,14 @@
 #include "Processor.h"
 #include <assert.h>
 
-int DoCommand(Stack *someStackPtr, int *code, const int sizeOfFile){//type не нужен вроде
+int DoCommand(Stack *someStackPtr, char *code, const int sizeOfFile){
 
 	int instructionPtr = 0;
 
 	while(instructionPtr <= sizeOfFile){
 
-		switch (code[instructionPtr]){
+		switch (*(code + instructionPtr)){
+
 			case -1: {
 				return 0;
 				break;
@@ -20,8 +21,8 @@ int DoCommand(Stack *someStackPtr, int *code, const int sizeOfFile){//type не 
 			}
 
 			case CMD_PUSH: {
-				StackPush(someStackPtr, code[instructionPtr + 1]);
-				instructionPtr += 2;
+				StackPush(someStackPtr, *((int *)(code + instructionPtr + 1)));
+				instructionPtr += 5;
 				break;
 			}
 
@@ -76,6 +77,7 @@ int DoCommand(Stack *someStackPtr, int *code, const int sizeOfFile){//type не 
 				printf("Запущен верификатор!!\n");
 				ASSERT_OK(someStackPtr);
 				instructionPtr += 1;
+
 				break;
 			}
 
