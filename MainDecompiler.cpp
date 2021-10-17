@@ -4,7 +4,7 @@
 //#include "Decompiler.h"
 #include <stdlib.h>
 
-int DecomposeToAsmBuffer(int* code, int sizeOfFile, FILE *decodeFile);
+int DecomposeToAsmBuffer(char* code, int sizeOfFile, FILE *decodeFile);
 
 int main(int argc, char *argv[]) {
 
@@ -13,11 +13,11 @@ int main(int argc, char *argv[]) {
 	FILE *codeFile = fopen(CODE_FILE, "rb");
 	FILE *decodeFile = fopen("decodeFile.txt", "w");
 
-	int *code = (int *)calloc(100, sizeof(int));
+	char *code = (char *)calloc(100, sizeof(char));
 
 	int sizeOfFile = GetSizeOfFile(codeFile);
 
-	fread(code, sizeof(int), sizeOfFile, codeFile);
+	fread(code, sizeof(char), sizeOfFile, codeFile);
 
 	
 	DecomposeToAsmBuffer(code, sizeOfFile, decodeFile);
@@ -32,4 +32,6 @@ int main(int argc, char *argv[]) {
 	return 0;
 
 }
+
+
 
