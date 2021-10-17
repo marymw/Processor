@@ -1,4 +1,4 @@
-include <stdio.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -23,15 +23,16 @@ int main(int argc, char *argv[], char *envp[]) {
 	if (timeAsm > timeCode){//а что за время то там ?
 		//перекомпилировать код и запустить процессор
 		printf("Надо бы перекомпилить..\n");
-		system("./COMPVERS7 asm.txt");
-		system("./ProcVERS7 code.txt");
-		printf("Неведомая ошибка или нет\n");
+		system("./COMPBINVERS6 asm.txt");
+		system("./ProcBinVERS10 codeBin.bin");
+		system("./DECOMBINVERS3 codeBin.bin");
+		
 	}
 
 	else{
 		//запустить процессор
 		printf("ничего перекомпилировать не нужно!\n");
-		system("./ProcVERS7 code.txt");
+		system("./ProcBinVERS10 codeBin.bin");
 
 	} 
 
