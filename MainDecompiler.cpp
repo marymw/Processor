@@ -1,37 +1,36 @@
 #include <stdio.h>
 #include "Processor.h"
 #include "HeadOneg.h"
-//#include "Decompiler.h"
+#include "Decompiler.h"
 #include <stdlib.h>
 
-int DecomposeToAsmBuffer(char* code, int sizeOfFile, FILE *decodeFile);
-
+ 
 int main(int argc, char *argv[]) {
 
+	CheckNullPtr(argv[1], "No code file!\n", NULL_PTR_ERROR);
 	char *CODE_FILE = argv[1];
 
 	FILE *codeFile = fopen(CODE_FILE, "rb");
-	FILE *decodeFile = fopen("decodeFile.txt", "w");
+	CheckNullPtr(codeFile, "Can't open file!\n", NULL_PTR_ERROR);
 
-	char *code = (char *)calloc(100, sizeof(char));
+	FILE *decodeFile = fopen("decodeFile.txt", "w");
+	CheckNullPtr(decodeFile, "Can't open file!\n", NULL_PTR_ERROR);
 
 	int sizeOfFile = GetSizeOfFile(codeFile);
 
-	fread(code, sizeof(char), sizeOfFile, codeFile);
+	char *code = (char *)calloc(sizeOfFile + 1, sizeof(char));
 
+	int statusOfFread = fread(code, sizeof(char), sizeOfFile, codeFile);//ошибки
+	CheckEqual(statusOfFread, sizeOfFile, "Не все символы прочитаны\n", WRITE_ERROR);
 	
-	DecomposeToAsmBuffer(code, sizeOfFile, decodeFile);
-
+	int statusOfDecomposeToAsmBuffer = DecomposeToAsmBuffer(code, sizeOfFile, decodeFile);
+	CheckNull(statusOfDecomposeToAsmBuffer, "Command recognition error\n", UNRECOGNIZED_COMMAND);
 	
 	free(code);
-
-	
 	fclose(decodeFile);
 	fclose(codeFile);
 
 	return 0;
 
 }
-
-
 
