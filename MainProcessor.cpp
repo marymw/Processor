@@ -6,30 +6,31 @@
 
 int main(int argc, char *argv[]){
 
-	Stack MyStack = {};
+	struct Processor MyProcessor = {};
 
-	StackCtor(&MyStack, 10);
+	StackCtor(&(MyProcessor.stackOfProc), 10);
 
+	CheckNullPtr(argv[1], "No instruction file!\n", NULL_PTR_ERROR);
 	char *CODE_FILE = argv[1];
 
 	FILE *codeFile = fopen(CODE_FILE, "rb");
-
-	char *code = (char *)calloc(100, sizeof(int));
-	
+	CheckNullPtr(codeFile, "Can't open file!\n", NULL_PTR_ERROR);
 
 	int sizeOfFile = GetSizeOfFile(codeFile);
+
+	MyProcessor.code = (char *)calloc(sizeOfFile + 1, sizeof(int));
+
+	int statusOfFread = fread(MyProcessor.code, sizeof(char), sizeOfFile, codeFile);
+	CheckEqual(statusOfFread, sizeOfFile, "Не все символы прочитаны\n", WRITE_ERROR);
+
+	int statusOfDoCommand = ExecuteCommand(&MyProcessor, sizeOfFile);
+	CheckNull(statusOfDoCommand, "Ошибка выполнения команды!\n", RUNTIME_ERROR);
 	
-	fread(code, sizeof(char), sizeOfFile, codeFile);
-	int statusOfDoCommand = DoCommand(&MyStack, code, sizeOfFile);
-	if (statusOfDoCommand != 0){
-		printf("Ошибка выполнения команды!\n");
-		return -1;
-	}
-
 	printf("Я устал, я мухожук... \n");
-	free(code);
-	fclose(codeFile);
-	StackDtor(&MyStack);
 
+	free(MyProcessor.code);
+	fclose(codeFile);
+	StackDtor(&(MyProcessor.stackOfProc));
+	
 	return 0;
 }
