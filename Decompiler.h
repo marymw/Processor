@@ -1,2 +1,1 @@
-
-DecomposeToAsmBuffer(char **bufferPtr, int* code, int sizeOfFile);
+int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile);
