@@ -1,75 +1,77 @@
 #include "Processor.h"
 #include "HeadOneg.h"
 #include "Compiler.h"
+#include <string.h>
 
-int DefineCommand(char *command, int *selectorPtr){
 
-	if (IsEqualCommand(command, HLT)){
+static int DefineCommand  (char *command, int *selectorPtr, int typeOfCommand);
+static int IsEqualCommand (const char *firstCommand, const char *secondCommand, const int lenOfCommand);
+
+
+static int DefineCommand(char *command, int *selectorPtr, int typeOfCommand) {
+
+	if (IsEqualCommand(command, HLT, LEN_OF_CMD_HLT + 1)){
 		*selectorPtr = CMD_HLT;
 		return NO_ERRORS;
 	}
-	if (IsEqualCommand(command, PUSH)){
+	if (IsEqualCommand(command, PUSH, LEN_OF_CMD_PUSH + 1)){
+		if (typeOfCommand != 2){
+			printf("Выйди и запушь нормально!\n");
+			return LACK_OF_ARGUMENTS;
+		}
 		*selectorPtr = CMD_PUSH;
 		return NO_ERRORS;
 	}
-	if (IsEqualCommand(command, POP)){
+	if (IsEqualCommand(command, POP, LEN_OF_CMD_POP + 1)){
 		*selectorPtr = CMD_POP;
 		return NO_ERRORS;
 	}
-	if (IsEqualCommand(command, ADD)){
+	if (IsEqualCommand(command, ADD, LEN_OF_CMD_ADD + 1)){
 		*selectorPtr = CMD_ADD;
 		return NO_ERRORS;
 	}
-	if (IsEqualCommand(command, SUB)){
+	if (IsEqualCommand(command, SUB, LEN_OF_CMD_SUB + 1)){
 		*selectorPtr = CMD_SUB;
 		return NO_ERRORS;
 	}
-	if (IsEqualCommand(command, MULT)){
-		*selectorPtr = CMD_MULT;
+	if (IsEqualCommand(command, MUL, LEN_OF_CMD_MUL + 1)){
+		*selectorPtr = CMD_MUL;
 		return NO_ERRORS;
 	}
-	if (IsEqualCommand(command, DIV)){
+	if (IsEqualCommand(command, DIV, LEN_OF_CMD_DIV + 1)){
 		*selectorPtr = CMD_DIV;
 		return NO_ERRORS;
 	}
-	if (IsEqualCommand(command, OUT)){
+	if (IsEqualCommand(command, OUT, LEN_OF_CMD_OUT + 1)){
 		*selectorPtr = CMD_OUT;
 		return NO_ERRORS;
 	}
-	if (IsEqualCommand(command, VER)){
+	if (IsEqualCommand(command, VER, LEN_OF_CMD_VER + 1)){
 		*selectorPtr = CMD_VER;
 		return NO_ERRORS;
 	}
-	if (IsEqualCommand(command, DMP)){
+	if (IsEqualCommand(command, DMP, LEN_OF_CMD_DMP + 1)){
 		*selectorPtr = CMD_DMP;
 		return NO_ERRORS;
 	}
 	else{
 		printf("Неверная команда\n");
+		return UNRECOGNIZED_COMMAND;
 	}
-	*selectorPtr = -1;
-	return NO_ERRORS;
+
 }
 
 
-int IsEqualCommand (const char *firstCommand, const char *secondCommand){
-	int i = 0;
-	for (i = 0; firstCommand[i] != '\0' && secondCommand[i] != '\0'; i++){
-		if(firstCommand[i] != secondCommand[i]){
-			return 0;
-		}
-	}
+static int IsEqualCommand (const char *firstCommand, const char *secondCommand, const int lenOfCommand) { 
 
-	if (firstCommand[i] == '\0' && secondCommand[i] == '\0'){
-		return 1;
-	}
+	return !strncmp(firstCommand, secondCommand, lenOfCommand);
 
-	return 0;
 }
 
-int DecomposeToCodeArray(MyString *indexPtr, char *codePtr, int numberOfStrings, int *instructionPtr) {
+
+int DecomposeToCodeArray(MyString *indexPtr, char *codePtr, const int numberOfStrings, int *instructionPtr, int *typeOfCommand) {
 	
-	assert(indexPtr);
+	CheckNullPtr(indexPtr, "Index is undefined!\n", NULL_PTR_ERROR);
 	
 	char command[LEN_OF_COMMAND] = {};
 	int param = 0;
@@ -78,49 +80,67 @@ int DecomposeToCodeArray(MyString *indexPtr, char *codePtr, int numberOfStrings,
 	for (int count = 0; count < numberOfStrings; count++){
 
 		int statusOfScanf = sscanf(indexPtr[count].PtrOnStartOfString, "%s %d", command, &param);
-		//printf("параметр %d\n", param);
-		//printf("команда %s\n", command);
-		assert(statusOfScanf != 0);
+		CheckNoNull(statusOfScanf, "Read error\n", READ_ERROR);
 		
 		if (statusOfScanf == 1){
-			int statusOfDefineCommand = DefineCommand(command, &selector);
-		
-			if (statusOfDefineCommand != 0){
-				printf("Ошибка определения команды!Вы ввели неверную команду!\n");
-			return -1;
-			}
-		
-			codePtr[(*instructionPtr)++] = selector;
-		}
 
+			*typeOfCommand = 1;
+
+			int statusOfDefineCommand = DefineCommand(command, &selector, *typeOfCommand);
+			CheckNull(statusOfDefineCommand, "Ошибка определения команды!Вы ввели неверную команду!\n", UNRECOGNIZED_COMMAND);
+
+			codePtr[(*instructionPtr)++] = selector;
+
+		}
 		else if (statusOfScanf == 2) {
-			int statusOfDefineCommand = DefineCommand(command, &selector);
-		
-			if (statusOfDefineCommand != 0){
-				printf("Ошибка определения команды!Вы ввели неверную команду!\n");
-			return -1;
-			}
+
+			*typeOfCommand = 2;
+
+			int statusOfDefineCommand = DefineCommand(command, &selector, *typeOfCommand);
+			CheckNull(statusOfDefineCommand, "Ошибка определения команды!Вы ввели неверную команду!\n", UNRECOGNIZED_COMMAND);
 		
 			codePtr[(*instructionPtr)++] = selector;
-			*((int *)(&codePtr[(*instructionPtr)])) = param;
-			// int ip = *instructionPtr;
-			// int *p = (int *)codePtr + ip;
-			// *p = param;
-			(*instructionPtr)+=4;
-		}
+			*((int *)(&codePtr[(*instructionPtr)])) = param; 
+			
+			(*instructionPtr) += 4;
 
+		}
 		else {
-			return -1;
+			return UNRECOGNIZED_COMMAND;
 		}
 		
 	}
 
-	return 0;
+	return NO_ERRORS;
 }
 
-int PrintToCodeFile(char *codePtr, int instructionPtr){
+int PrintToCodeFile(const char *codePtr, const int instructionPtr) {
+
 	FILE *codeFile = fopen("codeBin.bin", "wb");
-		fwrite(codePtr, sizeof(char), instructionPtr, codeFile);
-	fclose(codeFile);
-	return 0;
+	CheckNullPtr(codeFile, "Can't open file!\n", NULL_PTR_ERROR);
+
+	int statusOfFwrite = fwrite(codePtr, sizeof(char), instructionPtr, codeFile);
+	CheckEqual(statusOfFwrite, instructionPtr, "Не все символы записаны в файл\n", WRITE_ERROR);
+
+	int statusOfFclose = fclose(codeFile);
+	CheckNull(statusOfFclose, "Can't close file\n", CLOSE_ERROR);
+
+	return NO_ERRORS;
 }
+
+/*
+int GetSizeOfCodeArrFromBuffer(char *buffer){
+
+	char *someString = strtok(buffer, " \n");
+
+	int sizeOfCodeArrFromBuffer = 1;
+
+	while (someString != NULL){
+		sizeOfCodeArrFromBuffer++;
+		*someString = strtok(NULL, " \n");
+	}
+
+	return sizeOfCodeArrFromBuffer;
+
+}
+*/
