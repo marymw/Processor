@@ -1,6 +1,7 @@
 #include "Processor.h"
 #include "Decompiler.h"
 
+//а как сделать так чтобы он нормально печатал??
 int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile) {
 
 	int instructionPtr = 0;
@@ -99,6 +100,16 @@ int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile) {
 				fprintf(decodeFile, "\n");
 				break;
 			}
+
+			case CMD_IN: {
+				fprintf(decodeFile, "%4d \t", instructionPtr);
+				fprintf(decodeFile, "%x \t\t", code[instructionPtr]);
+				fprintf(decodeFile, "in ");
+				instructionPtr++;
+				fprintf(decodeFile, "\n");
+				break;
+			}
+
 			
 			default:{
 				printf("Неведомая ошибка..Не получилось определить команду!\n");
