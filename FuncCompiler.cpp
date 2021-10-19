@@ -54,6 +54,10 @@ static int DefineCommand(char *command, int *selectorPtr, int typeOfCommand) {
 		*selectorPtr = CMD_DMP;
 		return NO_ERRORS;
 	}
+	if (IsEqualCommand(command, IN, LEN_OF_CMD_IN + 1)){
+		*selectorPtr = CMD_IN;
+		return NO_ERRORS;
+	}
 	else{
 		printf("Неверная команда\n");
 		return UNRECOGNIZED_COMMAND;
