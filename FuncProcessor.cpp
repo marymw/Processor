@@ -88,6 +88,21 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 				SomeProcessorPtr->instructionPtr += 1;
 				break;
 			}
+
+			case CMD_IN: {
+				printf("Введите число, которое хотите записать в стек\n");
+				SomeProcessorPtr->instructionPtr += 1;
+				double number = 0;
+				int statusOfScanf = scanf("%d", &number);
+				//почему эта
+				while (statusOfScanf != 1) {
+					printf("Вы ввели откровенный бред. Попробуйте снова.");
+					statusOfScanf = scanf("%d", &number);
+				}
+
+				StackPush(&(SomeProcessorPtr->stackOfProc), number);
+				break;
+			}
 			
 			default:{
 				printf("Неверная команда\n");
