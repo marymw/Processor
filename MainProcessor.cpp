@@ -17,14 +17,14 @@ int main(int argc, char *argv[]){
 	CheckNullPtr(codeFile, "Can't open file!\n", NULL_PTR_ERROR);
 
 	int sizeOfFile = GetSizeOfFile(codeFile);
-
+	printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
 	MyProcessor.code = (char *)calloc(sizeOfFile + 1, sizeof(int));
 
 	int statusOfFread = fread(MyProcessor.code, sizeof(char), sizeOfFile, codeFile);
 	CheckEqual(statusOfFread, sizeOfFile, "Не все символы прочитаны\n", WRITE_ERROR);
-
-	int statusOfDoCommand = ExecuteCommand(&MyProcessor, sizeOfFile);
-	CheckNull(statusOfDoCommand, "Ошибка выполнения команды!\n", RUNTIME_ERROR);
+	printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+	int statusOfExecuteCommand = ExecuteCommand(&MyProcessor, sizeOfFile);
+	CheckNull(statusOfExecuteCommand, "Ошибка выполнения команды!\n", RUNTIME_ERROR);
 	
 	printf("Я устал, я мухожук... \n");
 
