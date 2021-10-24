@@ -4,7 +4,8 @@
 #include "Compiler.h"
 #include <stdlib.h>
 
-//почему целая куча переводов строки в консоли??
+//почему целая куча пробелов
+//не умеет в -1
 int main(int argc, char *argv[]) {
 
 	CheckNullPtr(argv[1], "No instruction file!\n", NULL_PTR_ERROR);
@@ -24,20 +25,28 @@ int main(int argc, char *argv[]) {
 	CheckNullPtr(index, "Index is undefined!\n", NULL_PTR_ERROR);
 
 	int instructionPtr = 0;
-	int typeOfCommand  = 0;
+	char typeOfCommand  = 0;
  
- 	char *code = (char *)calloc(3 * numberOfStrings + 1, sizeof(char)); 
+ 	char *code = (char *)calloc(10 * numberOfStrings + 1, sizeof(char));//подправить 
+ 	printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
 
 	int statusDecomposeToCodeArray = DecomposeToCodeArray(index, code, numberOfStrings, &instructionPtr, &typeOfCommand);
+	printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+
 	CheckNull(statusDecomposeToCodeArray, "Failed to decompose into code array\n", NULL_PTR_ERROR);
+
+	printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
 
 	int statusPrintToCodeFile = PrintToCodeFile(code, instructionPtr);
 	CheckNull(statusPrintToCodeFile, "Failed to print the code array into fail\n", NULL_PTR_ERROR);
+	printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
 
 	free(code);
 	free(index);
 	free(buffer);
 	fclose(asmFile);
+	printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+
 
 	return 0;
 
