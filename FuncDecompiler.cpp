@@ -8,7 +8,7 @@ int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile) {
 
 	while(instructionPtr < sizeOfFile){
 
-		switch (code[instructionPtr]){
+		switch (code[instructionPtr] & 31){
 		
 			case CMD_HLT: {
 				fprintf(decodeFile, "%4d \t", instructionPtr);
@@ -21,19 +21,39 @@ int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile) {
 
 			case CMD_PUSH: {
 				fprintf(decodeFile, "%4d \t", instructionPtr);
-				fprintf(decodeFile, "%x %x \t", code[instructionPtr], code[instructionPtr + 1]);
+				fprintf(decodeFile, "\t \t \t");
 				fprintf(decodeFile, "push ");
-				fprintf(decodeFile, "%d", *(int *)(code + instructionPtr + 1));
-				instructionPtr += 5;
+				int arg = code[instructionPtr];
+				char argStr[10] = {};
+				if (arg & 32){
+					argStr[1] = *(int *)(code + instructionPtr + 1);///мееееееееееее
+					instructionPtr += 4;
+					
+				}
+				if (arg & 64) {
+					argStr[2] = code[instructionPtr];
+					argStr[3] = 'x';
+					instructionPtr++;
+				}
+				if (arg & 128){
+					argStr[strlen(argStr)] = ']';
+					argStr[0] = '[';
+				}
+				
+				//fprintf(decodeFile, "%x %x \t", code[instructionPtr], code[instructionPtr + 1]);
+				
+				fprintf(decodeFile, "%s", argStr);
+				instructionPtr ++;
 				fprintf(decodeFile, "\n");
 				break;
 			}
 
-			case CMD_POP: {
+			case CMD_POP: {//не определяет что это поп
 				fprintf(decodeFile, "%4d \t", instructionPtr);
 				fprintf(decodeFile, "%x \t\t", code[instructionPtr]);
 				fprintf(decodeFile, "pop ");
 				instructionPtr++;
+				fprintf(decodeFile, "%cx", code[instructionPtr++] + 96);
 				fprintf(decodeFile, "\n");
 				break;
 			}
