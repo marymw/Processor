@@ -15,6 +15,7 @@ const char DIV[]  = "div";
 const char OUT[]  = "out";
 const char VER[]  = "ver";
 const char DMP[]  = "dmp";
+const char IN[]   = "in";
 
 //sin cos sqrt
 
@@ -28,7 +29,8 @@ enum ProcErrors {
 	WRITE_ERROR,		     //6
 	RIDE_ERROR,			     //7
 	CLOSE_ERROR,			 //8
-	RUNTIME_ERROR			 //9
+	RUNTIME_ERROR,			 //9
+	READ_ARGS_ERROR			 //10
 };
 
 
@@ -42,7 +44,8 @@ enum CommandsOfCalculator{
 	CMD_DIV  = 6,
 	CMD_OUT  = 7,
 	CMD_VER  = 8,
-	CMD_DMP  = 9
+	CMD_DMP  = 9,
+	CMD_IN   = 10
 };
 
 
@@ -56,18 +59,27 @@ enum LenOfCommands{
 	LEN_OF_CMD_DIV  = 3,
 	LEN_OF_CMD_OUT  = 3,
 	LEN_OF_CMD_VER  = 3,
-	LEN_OF_CMD_DMP  = 3
+	LEN_OF_CMD_DMP  = 3,
+	LEN_OF_CMD_IN   = 2
 };
 
 
 struct Processor {
 
-	int REGS[4];
+	int    REGS[4];
 	struct Stack stackOfProc;
-	char *code;
-	int instructionPtr;
+	char  *code;
+	int    instructionPtr;
+	int   *RAM;
 
 };
+
+//128 = 10000000
+//64  = 01000000
+//32  = 00100000
+const char RAM_CONST = 128;
+const char REG_CONST = 64;
+const char IMM_CONST = 32;
 
 
 #define CheckNullPtr(param, string, nameOfError) do {			\
