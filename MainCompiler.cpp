@@ -5,12 +5,12 @@
 #include <stdlib.h>
 
 //почему целая куча пробелов
-//не умеет в -1
 int main(int argc, char *argv[]) {
 
+	CheckEqual(argc, 2, "No instruction file!\n", NO_FILE);
 	CheckNullPtr(argv[1], "No instruction file!\n", NULL_PTR_ERROR);
 
-	char *ASM_FILE = argv[1];
+	char *ASM_FILE = argv[1]; //!TODO delete
 
 	FILE *asmFile = fopen(ASM_FILE, "rb");
 	CheckNullPtr(asmFile, "Can't open file!\n", NULL_PTR_ERROR);
@@ -21,33 +21,40 @@ int main(int argc, char *argv[]) {
 	ReadFromFile(&buffer, ASM_FILE);
 	CheckNullPtr(buffer, "Buffer is undefined!\n", NULL_PTR_ERROR);
 
-	int numberOfStrings = DecomposeToIndex(&index, &buffer);
+	int numberOfStrings = DecomposeToStringArray(&index, &buffer); 
 	CheckNullPtr(index, "Index is undefined!\n", NULL_PTR_ERROR);
 
-	int instructionPtr = 0;
-	char typeOfCommand  = 0;
+	int instructionPtr   = 0;
+	char typeOfCommand   = 0;
+	label *arrayOfLabels = (label *)calloc(MAX_NUM_OF_LABELS, sizeof(label));
+
+	for (int i = 0; i < 10; i++){
+		arrayOfLabels[i].name = (char *)calloc(10, sizeof(char));
+		arrayOfLabels[i].address = -1;
+	}
  
- 	char *code = (char *)calloc(10 * numberOfStrings + 1, sizeof(char));//подправить 
- 	printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+ 	char *code = (char *)calloc(MAX_LEN_OF_CODE_ARRAY, sizeof(char)); 
+ 	CheckNullPtr(code, "code is undefined!\n", NULL_PTR_ERROR);
+ 	PRINT_LOG();
 
-	int statusDecomposeToCodeArray = DecomposeToCodeArray(index, code, numberOfStrings, &instructionPtr, &typeOfCommand);
-	printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
-
+	int statusDecomposeToCodeArray = DecomposeToCodeArray(&arrayOfLabels, index, code, numberOfStrings, &instructionPtr, &typeOfCommand);
 	CheckNull(statusDecomposeToCodeArray, "Failed to decompose into code array\n", NULL_PTR_ERROR);
+	PRINT_LOG();
 
-	printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+	instructionPtr = 0;
+
+	statusDecomposeToCodeArray = DecomposeToCodeArray(&arrayOfLabels, index, code, numberOfStrings, &instructionPtr, &typeOfCommand);
+	CheckNull(statusDecomposeToCodeArray, "Failed to decompose into code array\n", NULL_PTR_ERROR);
+	PRINT_LOG();
 
 	int statusPrintToCodeFile = PrintToCodeFile(code, instructionPtr);
 	CheckNull(statusPrintToCodeFile, "Failed to print the code array into fail\n", NULL_PTR_ERROR);
-	printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
-
+	
 	free(code);
 	free(index);
 	free(buffer);
 	fclose(asmFile);
-	printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
-
-
+	
 	return 0;
 
 }
