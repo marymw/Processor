@@ -11,7 +11,7 @@ int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile) {
 		switch (code[instructionPtr] & 31){
 		
 			case CMD_HLT: {
-				fprintf(decodeFile, "%4d \t", instructionPtr);
+				fprintf(decodeFile, "%04d \t", instructionPtr);
 				fprintf(decodeFile, "%x \t\t", code[instructionPtr]);
 				fprintf(decodeFile, "hlt ");
 				instructionPtr++;
@@ -20,36 +20,35 @@ int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile) {
 			}
 
 			case CMD_PUSH: {
-				fprintf(decodeFile, "%4d \t", instructionPtr);
-				fprintf(decodeFile, "\t \t \t");
+				fprintf(decodeFile, "%04d \t", instructionPtr);
+				fprintf(decodeFile, "\t \t");
 				fprintf(decodeFile, "push ");
-				int arg = code[instructionPtr];
-				char argStr[10] = {};
-				if (arg & 32){
-					argStr[1] = *(int *)(code + instructionPtr + 1);///мееееееееееее
-					instructionPtr += 4;
+				int arg = code[instructionPtr++];
+				if (arg & RAM_CONST){
+					fprintf(decodeFile, "[");
+				}
+				if (arg & IMM_CONST){
+					fprintf(decodeFile, "%d", *(int *)(code + instructionPtr));
+					instructionPtr += LEN_OF_INT;
 					
 				}
-				if (arg & 64) {
-					argStr[2] = code[instructionPtr];
-					argStr[3] = 'x';
+				if (arg & IMM_CONST && arg & REG_CONST){
+					fprintf(decodeFile, "+");
+				}
+				if (arg & REG_CONST) {
+					fprintf(decodeFile, "%cx", code[instructionPtr] + ASCII_BEFORE_A);
 					instructionPtr++;
 				}
-				if (arg & 128){
-					argStr[strlen(argStr)] = ']';
-					argStr[0] = '[';
+				if (arg & RAM_CONST){
+					fprintf(decodeFile, "]");
 				}
 				
-				//fprintf(decodeFile, "%x %x \t", code[instructionPtr], code[instructionPtr + 1]);
-				
-				fprintf(decodeFile, "%s", argStr);
-				instructionPtr ++;
 				fprintf(decodeFile, "\n");
 				break;
 			}
 
-			case CMD_POP: {//не определяет что это поп
-				fprintf(decodeFile, "%4d \t", instructionPtr);
+			case CMD_POP: {
+				fprintf(decodeFile, "%04d \t", instructionPtr);
 				fprintf(decodeFile, "%x \t\t", code[instructionPtr]);
 				fprintf(decodeFile, "pop ");
 				instructionPtr++;
@@ -59,7 +58,7 @@ int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile) {
 			}
 
 			case CMD_ADD:{
-				fprintf(decodeFile, "%4d \t", instructionPtr);
+				fprintf(decodeFile, "%04d \t", instructionPtr);
 				fprintf(decodeFile, "%x \t\t", code[instructionPtr]);
 				fprintf(decodeFile, "add ");
 				instructionPtr++;
@@ -68,7 +67,7 @@ int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile) {
 			}
 
 			case CMD_SUB: {
-				fprintf(decodeFile, "%4d \t", instructionPtr);
+				fprintf(decodeFile, "%04d \t", instructionPtr);
 				fprintf(decodeFile, "%x \t\t", code[instructionPtr]);
 				fprintf(decodeFile, "sub ");
 				instructionPtr++;
@@ -77,7 +76,7 @@ int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile) {
 			}
 
 			case CMD_MUL: {
-				fprintf(decodeFile, "%4d \t", instructionPtr);
+				fprintf(decodeFile, "%04d \t", instructionPtr);
 				fprintf(decodeFile, "%x \t\t", code[instructionPtr]);
 				fprintf(decodeFile, "mul ");
 				instructionPtr++;
@@ -86,7 +85,7 @@ int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile) {
 			}
 
 			case CMD_DIV: {
-				fprintf(decodeFile, "%4d \t", instructionPtr);
+				fprintf(decodeFile, "%04d \t", instructionPtr);
 				fprintf(decodeFile, "%x \t\t", code[instructionPtr]);
 				fprintf(decodeFile, "div ");
 				instructionPtr++;
@@ -95,7 +94,7 @@ int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile) {
 			}
 
 			case CMD_OUT: {
-				fprintf(decodeFile, "%4d \t", instructionPtr);
+				fprintf(decodeFile, "%04d \t", instructionPtr);
 				fprintf(decodeFile, "%x \t\t", code[instructionPtr]);
 				fprintf(decodeFile, "out ");
 				instructionPtr++;
@@ -104,7 +103,7 @@ int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile) {
 			}
 
 			case CMD_VER: {
-				fprintf(decodeFile, "%4d \t", instructionPtr);
+				fprintf(decodeFile, "%04d \t", instructionPtr);
 				fprintf(decodeFile, "%x \t\t", code[instructionPtr]);
 				fprintf(decodeFile, "ver ");
 				instructionPtr++;
@@ -113,7 +112,7 @@ int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile) {
 			}
 
 			case CMD_DMP: {
-				fprintf(decodeFile, "%4d \t", instructionPtr);
+				fprintf(decodeFile, "%04d \t", instructionPtr);
 				fprintf(decodeFile, "%x \t\t", code[instructionPtr]);
 				fprintf(decodeFile, "dmp ");
 				instructionPtr++;
@@ -122,9 +121,19 @@ int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile) {
 			}
 
 			case CMD_IN: {
-				fprintf(decodeFile, "%4d \t", instructionPtr);
+				fprintf(decodeFile, "%04d \t", instructionPtr);
 				fprintf(decodeFile, "%x \t\t", code[instructionPtr]);
 				fprintf(decodeFile, "in ");
+				instructionPtr++;
+				fprintf(decodeFile, "\n");
+				break;
+			}
+
+			case CMD_JMP: {
+				fprintf(decodeFile, "%04d \t", instructionPtr);
+				fprintf(decodeFile, "%x \t\t", code[instructionPtr++]);
+				fprintf(decodeFile, "jmp ");
+				fprintf(decodeFile, "%d", code[instructionPtr]);
 				instructionPtr++;
 				fprintf(decodeFile, "\n");
 				break;
