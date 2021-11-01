@@ -7,10 +7,10 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 	printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
 	while(SomeProcessorPtr->instructionPtr <= sizeOfFile){
 		printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
-		char command = (*(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr)) & 31;
+		char command = (*(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr)) & 31; //!TODO remove magic consts
 		char typeOfCommand = (*(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr));
 		switch (command){
-			printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+			
 			case CMD_HLT: {
 				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
 				return NO_ERRORS;
@@ -51,7 +51,7 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 					return 0;
 				}
 				SomeProcessorPtr->instructionPtr += 1;
-				SomeProcessorPtr->REGS[(*(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr++))] = StackPop(&(SomeProcessorPtr->stackOfProc));
+				SomeProcessorPtr->REGS[(int)(*(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr++))] = (int)StackPop(&(SomeProcessorPtr->stackOfProc));
 				
 				break;
 			}
@@ -102,6 +102,7 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 					return 0;
 				}
 				printf("Сейчас на вершине стека лежит %lf\n", StackTop(&(SomeProcessorPtr->stackOfProc)));
+				StackPop(&(SomeProcessorPtr->stackOfProc));//дед сказал выбрасывать в помойку
 				SomeProcessorPtr->instructionPtr += 1;
 				break;
 			}
@@ -113,7 +114,7 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 				SomeProcessorPtr->instructionPtr += 1;
 
 				break;
-			}
+			} //sin, cos, sqrt
 
 			case CMD_DMP: {
 				printf("Запущен дамп!!\n");
@@ -137,6 +138,11 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
 				StackPush(&(SomeProcessorPtr->stackOfProc), number);
 				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+				break;
+			}
+
+			case CMD_JMP: {
+				SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
 				break;
 			}
 			
