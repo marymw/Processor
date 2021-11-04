@@ -1,0 +1,23 @@
+in
+pop ax
+call Factorial
+out
+hlt
+Factorial:
+push ax
+push ax
+push 1
+push ax
+push 1
+je end
+sub
+pop bx
+push bx
+push 2
+push bx
+jb end
+pop ax
+call Factorial
+end:
+mul
+ret
