@@ -133,11 +133,91 @@ int DecomposeToAsmBuffer(char* code, const int sizeOfFile, FILE *decodeFile) {
 				fprintf(decodeFile, "%04d \t", instructionPtr);
 				fprintf(decodeFile, "%x \t\t", code[instructionPtr++]);
 				fprintf(decodeFile, "jmp ");
-				fprintf(decodeFile, "%d", code[instructionPtr]);
+				fprintf(decodeFile, "%d", *(int *)(code + instructionPtr));
+				instructionPtr += LEN_OF_INT;
+				fprintf(decodeFile, "\n");
+				break;
+			}
+			case CMD_JA: {
+				fprintf(decodeFile, "%04d \t", instructionPtr);
+				fprintf(decodeFile, "%x \t\t", code[instructionPtr++]);
+				fprintf(decodeFile, "ja ");
+				fprintf(decodeFile, "%d", *(int *)(code + instructionPtr));
+				instructionPtr += LEN_OF_INT;
+				fprintf(decodeFile, "\n");
+				break;
+			}
+			case CMD_JAE: {
+				fprintf(decodeFile, "%04d \t", instructionPtr);
+				fprintf(decodeFile, "%x \t\t", code[instructionPtr++]);
+				fprintf(decodeFile, "jae ");
+				fprintf(decodeFile, "%d", *(int *)(code + instructionPtr));
+				instructionPtr += LEN_OF_INT;
+				fprintf(decodeFile, "\n");
+				break;
+			}
+			case CMD_JB: {
+				fprintf(decodeFile, "%04d \t", instructionPtr);
+				fprintf(decodeFile, "%x \t\t", code[instructionPtr++]);
+				fprintf(decodeFile, "jb ");
+				fprintf(decodeFile, "%d", *(int *)(code + instructionPtr));
+				instructionPtr += LEN_OF_INT;
+				fprintf(decodeFile, "\n");
+				break;
+			}
+			case CMD_JBE: {
+				fprintf(decodeFile, "%04d \t", instructionPtr);
+				fprintf(decodeFile, "%x \t\t", code[instructionPtr++]);
+				fprintf(decodeFile, "jbe ");
+				fprintf(decodeFile, "%d", *(int *)(code + instructionPtr));
+				instructionPtr += LEN_OF_INT;
+				fprintf(decodeFile, "\n");
+				break;
+			}
+			case CMD_JE: {
+				fprintf(decodeFile, "%04d \t", instructionPtr);
+				fprintf(decodeFile, "%x \t\t", code[instructionPtr++]);
+				fprintf(decodeFile, "je ");
+				fprintf(decodeFile, "%d", *(int *)(code + instructionPtr));
+				instructionPtr += LEN_OF_INT;
+				fprintf(decodeFile, "\n");
+				break;
+			}
+			case CMD_JNE: {
+				fprintf(decodeFile, "%04d \t", instructionPtr);
+				fprintf(decodeFile, "%x \t\t", code[instructionPtr++]);
+				fprintf(decodeFile, "jne ");
+				fprintf(decodeFile, "%d", *(int *)(code + instructionPtr));
+				instructionPtr += LEN_OF_INT;
+				fprintf(decodeFile, "\n");
+				break;
+			}
+			case CMD_SQRT:{
+				fprintf(decodeFile, "%04d \t", instructionPtr);
+				fprintf(decodeFile, "%x \t\t", code[instructionPtr]);
+				fprintf(decodeFile, "sqrt ");
 				instructionPtr++;
 				fprintf(decodeFile, "\n");
 				break;
 			}
+			case CMD_CALL: {
+				fprintf(decodeFile, "%04d \t", instructionPtr);
+				fprintf(decodeFile, "%x \t\t", code[instructionPtr++]);
+				fprintf(decodeFile, "call ");
+				fprintf(decodeFile, "%d", *(int *)(code + instructionPtr));
+				instructionPtr += LEN_OF_INT;
+				fprintf(decodeFile, "\n");
+				break;
+			}
+			case CMD_RET: {
+				fprintf(decodeFile, "%04d \t", instructionPtr);
+				fprintf(decodeFile, "%x \t\t", code[instructionPtr]);
+				fprintf(decodeFile, "ret ");
+				instructionPtr++;
+				fprintf(decodeFile, "\n");
+				break;
+			}
+
 
 			
 			default:{
