@@ -1,0 +1,96 @@
+in
+pop ax
+in
+pop bx
+in
+pop cx
+push ax
+push 0
+je linear
+call Descr
+push dx
+push 0
+ja noroots
+push dx
+push 0
+je oneroot
+jmp tworoots
+hlt
+noroots:
+push 0
+out
+hlt
+oneroot:
+push 1
+out
+push bx
+push -2
+push ax
+mul
+div
+out
+hlt
+tworoots:
+push 2
+out
+push dx
+sqrt
+push -1
+push bx
+mul
+add
+push 2
+push ax
+mul
+div
+out
+push dx
+sqrt
+push -1
+mul
+push bx
+push -1
+mul
+add
+push 2
+push ax
+mul
+div
+out
+hlt
+Descr:
+push bx
+push bx
+mul
+push -4
+push ax
+push cx
+mul
+mul
+add
+pop dx
+ret
+linear:
+push bx
+push 0
+je hz
+push 1
+out
+push cx
+push -1
+mul
+push bx
+div
+out
+hlt
+hz:
+push cx
+push 0
+je inf
+push 0
+out
+hlt
+inf:
+push -1
+out
+hlt
