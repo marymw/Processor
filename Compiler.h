@@ -1,8 +1,8 @@
 #ifndef COMP_H
 #define COMP_H
 
-const int MAX_NUM_OF_LABELS = 10;
-const int MAX_LEN_OF_LABEL  = 10;
+const int MAX_NUM_OF_LABELS = 20;
+const int MAX_LEN_OF_LABEL  = 20;
 
 struct label {
 	int   address;
