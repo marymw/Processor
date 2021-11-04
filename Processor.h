@@ -26,6 +26,7 @@ const char JE[]    = "je";
 const char JNE[]   = "jne";
 const char CALL[]  = "call";
 const char RET[]   = "ret";
+const char SQRT[]  = "sqrt";
 
 //sin cos sqrt
 
@@ -41,7 +42,8 @@ enum ProcErrors {
 	CLOSE_ERROR,			 //8
 	RUNTIME_ERROR,			 //9
 	READ_ARGS_ERROR,		 //10
-	NO_FILE					 //11
+	NO_FILE,				 //11
+	MATH_ERROR				 //12
 };
 
 
@@ -66,7 +68,8 @@ enum CommandsOfCalculator{
 	CMD_JE    = 17,
 	CMD_JNE   = 18,
 	CMD_CALL  = 19,
-	CMD_RET   = 20
+	CMD_RET   = 20,
+	CMD_SQRT  = 21
 };
 
 
@@ -90,7 +93,8 @@ enum LenOfCommands{
 	LEN_OF_CMD_JE   = 2,
 	LEN_OF_CMD_JNE  = 3,
 	LEN_OF_CMD_CALL = 4,
-	LEN_OF_CMD_RET  = 3
+	LEN_OF_CMD_RET  = 3,
+	LEN_OF_CMD_SQRT = 4
 };
 
 
@@ -103,7 +107,7 @@ enum TypesOfCommands {
 
 struct Processor {
 
-	int    REGS[4];
+	int   *REGS;
 	struct Stack stackOfProc;
 	struct Stack stackOfReturns;
 	char  *code;
@@ -120,16 +124,20 @@ const unsigned char REG_CONST     		  = 64;
 const unsigned char IMM_CONST     		  = 32;
 const int           LEN_OF_INT 	   		  = 4;
 const int           ASCII_BEFORE_A        = 96;
-const int 			MAX_LEN_OF_CODE_ARRAY = 200;
+const int 			MAX_LEN_OF_CODE_ARRAY = 400;
 
-#define DEBUG5 1
+//#define DEBUG5 1
 
 #ifdef DEBUG5
 #define PRINT_LOG() printf("Я в функции %s, на строчке %d\n", __FUNCTION__, __LINE__);
 #define DEBUG_PRINT_PROC(str) printf(str);
+#define DEBUG_PRINT_ONE_ARG_PROC(str, arg) printf(str, arg);
+#define DEBUG_PRINT_TWO_ARG_PROC(str, arg1, arg2) printf(str, arg1, arg2);
 #else
-#define PRINT_LOG() printf("");
-#define DEBUG_PRINT_PROC(str) printf("");
+#define PRINT_LOG() printf(" ");
+#define DEBUG_PRINT_PROC(str) printf(" ");
+#define DEBUG_PRINT_ONE_ARG_PROC(str, arg) printf(" ");
+#define DEBUG_PRINT_TWO_ARG_PROC(str, arg1, arg2) printf(" ");
 #endif
 
 
@@ -165,6 +173,13 @@ const int 			MAX_LEN_OF_CODE_ARRAY = 200;
 
 #define CheckNoNull(param, string, nameOfError) do {				       \
 													if (param == 0) {	   \
+														printf(string);    \
+														return nameOfError;\
+													}				       \
+								 			    } while(0);
+
+#define CheckAboveNull(param, string, nameOfError) do {				       \
+													if (param < 0) {	   \
 														printf(string);    \
 														return nameOfError;\
 													}				       \
