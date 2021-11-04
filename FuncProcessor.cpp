@@ -1,52 +1,50 @@
 #include <stdio.h>
 #include "Processor.h"
 #include <assert.h>
-
+#include <math.h>
 
 int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
-	printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+
 	while(SomeProcessorPtr->instructionPtr <= sizeOfFile){
-		printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+		
 		char command = (*(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr)) & 31; //!TODO remove magic consts
 		char typeOfCommand = (*(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr));
+		int argumentJmp = 0;
 		switch (command){
 			
 			case CMD_HLT: {
-				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
 				PRINT_LOG();
 				return NO_ERRORS;
 			}
 		
 			case CMD_PUSH: {
-				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
-				
-				int argument = 0;
+				PRINT_LOG();
+				int argument = 0;//
 				SomeProcessorPtr->instructionPtr++;
 
 				if (typeOfCommand & IMM_CONST){
-					printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
 					argument += *((int *)(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr));
+					DEBUG_PRINT_ONE_ARG_PROC("я хочу запушить число %d\n", argument);
 					SomeProcessorPtr->instructionPtr += 4;
 				}
 				if (typeOfCommand & REG_CONST){
-					printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
-					printf("SomeProcessorPtr->instructionPtr = %d\n", SomeProcessorPtr->instructionPtr);
 					int num = *(((SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr)));
 					SomeProcessorPtr->instructionPtr++;
-					printf("num = %d\n", num);//тут какой-то мусор
-					argument += SomeProcessorPtr->REGS[ num ];
+					DEBUG_PRINT_ONE_ARG_PROC("num = %d\n", num);
+					argument += SomeProcessorPtr->REGS[ num];
 				}
 				if (typeOfCommand & RAM_CONST){
 					printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
 					argument += SomeProcessorPtr->RAM[argument];
 				}
-				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+				PRINT_LOG();
+				DEBUG_PRINT_ONE_ARG_PROC("я запушил хз что но это = %d\n", argument);
 				StackPush(&(SomeProcessorPtr->stackOfProc), argument);
 				break;
 			}
 
 			case CMD_POP: {
-				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+				PRINT_LOG();
 				if (SomeProcessorPtr->stackOfProc.stackSize <= 0){
 					printf("Чисел в стеке больше нет!\n");
 					return 0;
@@ -58,7 +56,7 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 			}
 
 			case CMD_ADD:{
-				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+				PRINT_LOG();
 				double arg1 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				double arg2 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				StackPush(&(SomeProcessorPtr->stackOfProc), arg1 + arg2);
@@ -67,7 +65,7 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 			}
 
 			case CMD_SUB: {
-				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+				PRINT_LOG();
 				double subtracter = StackPop(&(SomeProcessorPtr->stackOfProc));//сначала вытащили вычитаемое
 				double minuend	  = StackPop(&(SomeProcessorPtr->stackOfProc));
 				Type sub = minuend - subtracter;
@@ -77,7 +75,7 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 			}
 
 			case CMD_MUL: {
-				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+				PRINT_LOG();
 				double multiplier1 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				double multiplier2 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				Type mul          = multiplier1 * multiplier2;
@@ -86,8 +84,18 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 				break;
 			}
 
+			case CMD_SQRT: {
+				PRINT_LOG();
+				double argForSqrt = StackPop(&(SomeProcessorPtr->stackOfProc));
+				CheckAboveNull(argForSqrt, "Квадратный корень из отрицательного числа!\n", MATH_ERROR);
+				Type sqrtn         = sqrtf(argForSqrt);
+				StackPush(&(SomeProcessorPtr->stackOfProc), sqrtn);
+				SomeProcessorPtr->instructionPtr += 1;
+				break;
+			}
+
 			case CMD_DIV: {
-				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+				PRINT_LOG();
 				double divisor  = StackPop(&(SomeProcessorPtr->stackOfProc));//сначала вытащили делитель
 				double dividend	= StackPop(&(SomeProcessorPtr->stackOfProc));
 				Type div        = dividend / divisor;
@@ -97,12 +105,12 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 			}
 
 			case CMD_OUT: {
-				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+				PRINT_LOG();
 				if (SomeProcessorPtr->stackOfProc.stackSize <= 0){
 					printf("Чисел в стеке больше нет!\n");
 					return 0;
 				}
-				printf("Сейчас на вершине стека лежит %lf\n", StackTop(&(SomeProcessorPtr->stackOfProc)));
+				printf("\n\t\tСейчас на вершине стека лежит %lf\n", StackTop(&(SomeProcessorPtr->stackOfProc)));
 				StackPop(&(SomeProcessorPtr->stackOfProc));//дед сказал выбрасывать в помойку
 				SomeProcessorPtr->instructionPtr += 1;
 				break;
@@ -125,35 +133,41 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 			}
 
 			case CMD_IN: {
-				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+				PRINT_LOG()
 				printf("Введите число, которое хотите записать в стек\n");
 				SomeProcessorPtr->instructionPtr += 1;
 				double number = 0;
 				int statusOfScanf = scanf("%lf", &number);
-				//почему эта
-				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+				PRINT_LOG();
 				while (statusOfScanf != 1) {
-					printf("Вы ввели откровенный бред. Попробуйте снова.");
+					printf("Вы ввели откровенный бред. Попробуйте снова.\n");//что сделать чтобы не зацикливалось??
 					statusOfScanf = scanf("%lf", &number);
 				}
-				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+				PRINT_LOG();
 				StackPush(&(SomeProcessorPtr->stackOfProc), number);
-				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+				PRINT_LOG();
 				break;
 			}
 
 			case CMD_JMP: {
-				SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
+				PRINT_LOG();
+				SomeProcessorPtr->instructionPtr++;
+				argumentJmp = *((int *)(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr));
+				DEBUG_PRINT_ONE_ARG_PROC("arg jmp = %d\n", argumentJmp);
+				DEBUG_PRINT_ONE_ARG_PROC("arg jmp = %d\n", SomeProcessorPtr->code[argumentJmp]);
+				SomeProcessorPtr->instructionPtr = argumentJmp;
 				break;
 			}
 			case CMD_JA: {
 				double arg1 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				double arg2 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				if (arg1 > arg2){
-					SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
+					SomeProcessorPtr->instructionPtr++;
+					argumentJmp = *((int *)(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr));
+					SomeProcessorPtr->instructionPtr = argumentJmp;
 				}
 				else {
-					SomeProcessorPtr->instructionPtr += 2;
+					SomeProcessorPtr->instructionPtr += 5;
 				}
 				break;
 			}
@@ -161,10 +175,12 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 				double arg1 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				double arg2 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				if (arg1 >= arg2){
-					SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
+					SomeProcessorPtr->instructionPtr++;
+					argumentJmp = *((int *)(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr));
+					SomeProcessorPtr->instructionPtr = argumentJmp;
 				}
 				else {
-					SomeProcessorPtr->instructionPtr += 2;
+					SomeProcessorPtr->instructionPtr += 5;
 				}
 				break;
 			}
@@ -172,10 +188,12 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 				double arg1 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				double arg2 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				if (arg1 < arg2){
-					SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
+					SomeProcessorPtr->instructionPtr++;
+					argumentJmp = *((int *)(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr));
+					SomeProcessorPtr->instructionPtr = argumentJmp;
 				}
 				else {
-					SomeProcessorPtr->instructionPtr += 2;
+					SomeProcessorPtr->instructionPtr += 5;
 				}
 				break;
 			}
@@ -183,10 +201,12 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 				double arg1 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				double arg2 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				if (arg1 <= arg2){
-					SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
+					SomeProcessorPtr->instructionPtr++;
+					argumentJmp = *((int *)(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr));
+					SomeProcessorPtr->instructionPtr = argumentJmp;
 				}
 				else {
-					SomeProcessorPtr->instructionPtr += 2;
+					SomeProcessorPtr->instructionPtr += 5;
 				}
 				break;
 			}
@@ -194,31 +214,43 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 				double arg1 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				double arg2 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				if (arg1 == arg2){
-					SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
+					SomeProcessorPtr->instructionPtr++;
+					argumentJmp = *((int *)(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr));
+					SomeProcessorPtr->instructionPtr = argumentJmp;
+					DEBUG_PRINT_TWO_ARG_PROC("Я считаю что %lf и %lf равны\n ", arg1, arg2);
 				}
 				else {
-					SomeProcessorPtr->instructionPtr += 2;
+					SomeProcessorPtr->instructionPtr += 5;
+					DEBUG_PRINT_TWO_ARG_PROC("Я не считаю что %lf и %lf равны\n ", arg1, arg2);
 				}
+				DEBUG_PRINT_TWO_ARG_PROC("Я СРАВНИЛ %lf и %lf\n", arg1, arg2);
 				break;
 			}
 			case CMD_JNE: {
 				double arg1 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				double arg2 = StackPop(&(SomeProcessorPtr->stackOfProc));
 				if (arg1 != arg2){
-					SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
+					SomeProcessorPtr->instructionPtr++;
+					argumentJmp = *((int *)(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr));
+					SomeProcessorPtr->instructionPtr = argumentJmp;
 				}
 				else {
-					SomeProcessorPtr->instructionPtr += 2;
+					SomeProcessorPtr->instructionPtr += 5;
 				}
 				break;
 			}
 			case CMD_CALL: {
-				StackPush(&(SomeProcessorPtr->stackOfReturns), SomeProcessorPtr->instructionPtr + 2);
-				SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
+				PRINT_LOG();
+				StackPush(&(SomeProcessorPtr->stackOfReturns), SomeProcessorPtr->instructionPtr + 5);///////////+5
+				SomeProcessorPtr->instructionPtr++;
+				argumentJmp = *((int *)(SomeProcessorPtr->code + SomeProcessorPtr->instructionPtr));
+				SomeProcessorPtr->instructionPtr = argumentJmp;
 				break;
-			}//сделать аргумент jumpa 4 байта
+			}
 			case CMD_RET: {
+				PRINT_LOG();
 				SomeProcessorPtr->instructionPtr = StackPop(&(SomeProcessorPtr->stackOfReturns));
+				DEBUG_PRINT_ONE_ARG_PROC("return %d\n", SomeProcessorPtr->instructionPtr);
 				break;
 			}
 			default:{
