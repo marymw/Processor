@@ -20,7 +20,7 @@ struct label {
 // 	 										return NO_ERRORS;\
 // 	 									}
 
-int DecomposeToCodeArray(label **arrayOfLabels, MyString *indexPtr, char *codePtr, const int numberOfStrings, int *instructionPtr, char *typeOfCommand);
+int DecomposeToCodeArray(label *arrayOfLabels, MyString *indexPtr, char *codePtr, const int numberOfStrings, int *instructionPtr, char *typeOfCommand);
 int PrintToCodeFile     (const char *codePtr, const int instructionPtr);
 
 #endif 
