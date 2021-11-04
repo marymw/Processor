@@ -6,17 +6,17 @@
 
 static int DefineCommand   			  	      (char *command, int *selectorPtr, char typeOfCommand);
 static int IsEqualCommand  			  	      (const char *firstCommand, const char *secondCommand, const int lenOfCommand);
-static int GetCommand  						  (label **arrayOfLabels, char *string, int *param, char *command, char *typeOfCommand, int *reg);
+static int GetCommand  						  (label *arrayOfLabels, char *string, int *param, char *command, char *typeOfCommand, int *reg);
 static int CheckCommandWithoutArgument	      (char *string, char *command);
 static int CheckArgumentIsOnlyRegister        (char *string, char *command, char *typeOfCommand, int *reg);
 static int CheckArgumentIsRegisterInBrakets   (char *string, char *command, char *typeOfCommand, int *reg);
 static int CheckArgumentIsOnlyConstant     	  (char *string, int *param, char *command, char *typeOfCommand, int *reg);
 static int CheckArgumentIsConstInBrackets     (char *string, int *param, char *command, char *typeOfCommand, int *reg);
 static int CheckArgumentIsJustConstAndRegister(char *string, int *param, char *command, char *typeOfCommand, int *reg);
-static int IsLabel							  (label **arrayOfLabels, int *instructionPtr, char *command, int *labelPtr);
+static int IsLabel							  (label *arrayOfLabels, int *instructionPtr, char *command, int *labelPtr);
 static int IsCommandWithoutArguments          (char *codePtr, int *instructionPtr, char *typeOfCommand, char *command, int *selector);
 static int IsCommandWithArguments             (char *codePtr, int *instructionPtr, char *typeOfCommand, char *command, int *selector, const int param, const int reg);
-static int CheckIsJump						  (label **arrayOfLabels, char *label, char *string, int *param, char *command, char *typeOfCommand);
+static int CheckIsJump						  (label *arrayOfLabels, char *label, char *string, int *param, char *command, char *typeOfCommand);
 
 
 static int DefineCommand(char *command, int *selectorPtr, char typeOfCommand) {
@@ -88,7 +88,54 @@ static int DefineCommand(char *command, int *selectorPtr, char typeOfCommand) {
 		*selectorPtr = CMD_JMP;
 		return NO_ERRORS;
 	}
-
+	if (IsEqualCommand(command, JA, LEN_OF_CMD_JA + 1)){
+		PRINT_LOG();
+		CheckNoNull(typeOfCommand, "Ввёл что-то не то!\n", LACK_OF_ARGUMENTS);
+		*selectorPtr = CMD_JA;
+		return NO_ERRORS;
+	}
+	if (IsEqualCommand(command, JAE, LEN_OF_CMD_JAE + 1)){
+		PRINT_LOG();
+		CheckNoNull(typeOfCommand, "Ввёл что-то не то!\n", LACK_OF_ARGUMENTS);
+		*selectorPtr = CMD_JAE;
+		return NO_ERRORS;
+	}
+	if (IsEqualCommand(command, JB, LEN_OF_CMD_JB + 1)){
+		PRINT_LOG();
+		CheckNoNull(typeOfCommand, "Ввёл что-то не то!\n", LACK_OF_ARGUMENTS);
+		*selectorPtr = CMD_JB;
+		return NO_ERRORS;
+	}
+	if (IsEqualCommand(command, JBE, LEN_OF_CMD_JBE + 1)){
+		PRINT_LOG();
+		CheckNoNull(typeOfCommand, "Ввёл что-то не то!\n", LACK_OF_ARGUMENTS);
+		*selectorPtr = CMD_JBE;
+		return NO_ERRORS;
+	}
+	if (IsEqualCommand(command, JE, LEN_OF_CMD_JE + 1)){
+		PRINT_LOG();
+		CheckNoNull(typeOfCommand, "Ввёл что-то не то!\n", LACK_OF_ARGUMENTS);
+		*selectorPtr = CMD_JE;
+		return NO_ERRORS;
+	}
+	if (IsEqualCommand(command, JNE, LEN_OF_CMD_JA + 1)){
+		PRINT_LOG();
+		CheckNoNull(typeOfCommand, "Ввёл что-то не то!\n", LACK_OF_ARGUMENTS);
+		*selectorPtr = CMD_JNE;
+		return NO_ERRORS;
+	}
+	if (IsEqualCommand(command, CALL, LEN_OF_CMD_CALL + 1)){
+		PRINT_LOG();
+		CheckNoNull(typeOfCommand, "Ввёл что-то не то!\n", LACK_OF_ARGUMENTS);
+		*selectorPtr = CMD_CALL;
+		return NO_ERRORS;
+	}
+	if (IsEqualCommand(command, RET, LEN_OF_CMD_RET + 1)){
+		PRINT_LOG();
+		CheckNull(typeOfCommand, "Ввёл что-то не то!\n", LACK_OF_ARGUMENTS);
+		*selectorPtr = CMD_RET;
+		return NO_ERRORS;
+	}
 	printf("Неверная команда\n");
 	return UNRECOGNIZED_COMMAND;
 
@@ -103,7 +150,7 @@ static int IsEqualCommand (const char *firstCommand, const char *secondCommand, 
 }
 
 
-int DecomposeToCodeArray(label **arrayOfLabels, MyString *indexPtr, char *codePtr, const int numberOfStrings, int *instructionPtr, char *typeOfCommand) {
+int DecomposeToCodeArray(label *arrayOfLabels, MyString *indexPtr, char *codePtr, const int numberOfStrings, int *instructionPtr, char *typeOfCommand) {
 
 	CheckNullPtr(indexPtr, "Index is undefined!\n", NULL_PTR_ERROR);
 	
@@ -147,7 +194,7 @@ int PrintToCodeFile(const char *codePtr, const int instructionPtr) {
 }
 
 
-static int GetCommand(label **arrayOfLabels, char *string, int *param, char *command, char *typeOfCommand, int *reg) {
+static int GetCommand(label *arrayOfLabels, char *string, int *param, char *command, char *typeOfCommand, int *reg) {
 
  	CheckNullPtr(string, "нулевой указатель на строчку!!\n", NULL_PTR_ERROR);
  	PRINT_LOG();
@@ -295,14 +342,14 @@ static int CheckArgumentIsJustConstAndRegister(char *string, int *param, char *c
 
 }
 
-static int IsLabel(label **arrayOfLabels, int *instructionPtr, char *command, int *labelPtr) {
+static int IsLabel(label *arrayOfLabels, int *instructionPtr, char *command, int *labelPtr) {
 		PRINT_LOG();
 		if (command[strlen(command) - 1] == ':'){
 			command[strlen(command) - 1] = '\0';
 			PRINT_LOG();
 			DEBUG_PRINT_PROC("It is a label\n");
-			sscanf(command, "%s\n", arrayOfLabels[(*labelPtr)]->name);
-			arrayOfLabels[(*labelPtr)++]->address = *instructionPtr;
+			sscanf(command, "%s\n", arrayOfLabels[(*labelPtr)].name);
+			arrayOfLabels[(*labelPtr)++].address = *instructionPtr;
 			return 1;
 		}
 
@@ -331,16 +378,19 @@ static int IsCommandWithArguments(char *codePtr, int *instructionPtr, char *type
 	
 			codePtr[(*instructionPtr)++] = (*selector) ^ (*typeOfCommand);
 
-			if(((*selector) == CMD_JMP)){
+			if(((*selector) == CMD_JMP) || ((*selector) == CMD_JA) || ((*selector) == CMD_JAE) || ((*selector) == CMD_JB) ||
+			   ((*selector) == CMD_JBE) || ((*selector) == CMD_JE) || ((*selector) == CMD_JNE || ((*selector) == CMD_CALL))){
 				codePtr[(*instructionPtr)++] = param;
 				PRINT_LOG();
 			}
-			if(((*typeOfCommand) & IMM_CONST) && ((*selector) != CMD_JMP)){
+			if(((*typeOfCommand) & IMM_CONST) && ((*selector) != CMD_JMP) && ((*selector) != CMD_JA) && ((*selector) != CMD_JAE) && ((*selector) != CMD_JB) &&
+			   ((*selector) != CMD_JBE) && ((*selector) != CMD_JE) && ((*selector) != CMD_JNE) && ((*selector) != CMD_CALL)){
 				PRINT_LOG();
 				*((int *)(&codePtr[(*instructionPtr)])) = param; 
 				(*instructionPtr) += LEN_OF_INT;
 			}
-			if(((*typeOfCommand) & REG_CONST) && ((*selector) != CMD_JMP)){
+			if(((*typeOfCommand) & REG_CONST) && ((*selector) != CMD_JMP) && ((*selector) != CMD_JA) && ((*selector) != CMD_JAE) && ((*selector) != CMD_JB) &&
+			   ((*selector) != CMD_JBE) && ((*selector) != CMD_JE) && ((*selector) != CMD_JNE) && ((*selector) != CMD_CALL)){
 				PRINT_LOG();
 				int regSelector = reg - ASCII_BEFORE_A; 
 				codePtr[(*instructionPtr)++] = regSelector;
@@ -354,9 +404,12 @@ static int IsCommandWithArguments(char *codePtr, int *instructionPtr, char *type
 }
 
 
-static int CheckIsJump(label **arrayOfLabels, char *label, char *string, int *param, char *command, char *typeOfCommand) {
+static int CheckIsJump(label *arrayOfLabels, char *label, char *string, int *param, char *command, char *typeOfCommand) {
 	PRINT_LOG();
-	if (IsEqualCommand(command, JMP, LEN_OF_CMD_JMP + 1)){
+	if (IsEqualCommand(command, JMP, LEN_OF_CMD_JMP + 1) || IsEqualCommand(command, JA, LEN_OF_CMD_JA + 1) ||
+	    IsEqualCommand(command, JAE, LEN_OF_CMD_JAE + 1) || IsEqualCommand(command, JB, LEN_OF_CMD_JB + 1) ||
+	    IsEqualCommand(command, JBE, LEN_OF_CMD_JBE + 1) || IsEqualCommand(command, JE, LEN_OF_CMD_JE + 1) ||
+	    IsEqualCommand(command, JNE, LEN_OF_CMD_JNE + 1) || IsEqualCommand(command, CALL, LEN_OF_CMD_CALL + 1)){
 		*typeOfCommand ^= IMM_CONST;
 		PRINT_LOG();
 		int statusOfsscanf = sscanf(label, "%d", param);
@@ -367,16 +420,16 @@ static int CheckIsJump(label **arrayOfLabels, char *label, char *string, int *pa
 			PRINT_LOG();
 			for (int i = 0; i < 10; i++){
 				PRINT_LOG();
-				if (strncmp(arrayOfLabels[i]->name, label, strlen(label)) == 0){
+				if (strncmp(arrayOfLabels[i].name, label, strlen(label)) == 0){
 					PRINT_LOG();
-					*param = arrayOfLabels[i]->address;
+					*param = arrayOfLabels[i].address;
 					PRINT_LOG();
 					return 1;
 				}
 				else {
 					PRINT_LOG();
 					*param = -1;//это будет в каждой итерации
-					if ((strlen(arrayOfLabels[i]->name) == 0)) {
+					if ((strlen(arrayOfLabels[i].name) == 0)) {
 						return 1;
 					}
 				}
