@@ -9,6 +9,7 @@ int main(int argc, char *argv[]){
 	struct Processor MyProcessor = {};
 
 	StackCtor(&(MyProcessor.stackOfProc), 10);
+	StackCtor(&(MyProcessor.stackOfReturns), 20);
 
 	CheckNullPtr(argv[1], "No instruction file!\n", NULL_PTR_ERROR);
 	char *CODE_FILE = argv[1];
@@ -29,6 +30,8 @@ int main(int argc, char *argv[]){
 	printf("Я устал, я мухожук... \n");
 
 	free(MyProcessor.code);
+	// printf("я здесь\n");
+	// StackDtor(&(MyProcessor.stackOfReturns));
 	fclose(codeFile);
 	StackDtor(&(MyProcessor.stackOfProc));
 	
