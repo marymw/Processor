@@ -57,6 +57,11 @@ static int DefineCommand(char *command, int *selectorPtr, char typeOfCommand) {
 		*selectorPtr = CMD_MUL;
 		return NO_ERRORS;
 	}
+	if (IsEqualCommand(command, SQRT, LEN_OF_CMD_SQRT + 1)){
+		CheckNull(typeOfCommand, "Ввёл что-то не то!\n", LACK_OF_ARGUMENTS);
+		*selectorPtr = CMD_SQRT;
+		return NO_ERRORS;
+	}
 	if (IsEqualCommand(command, DIV, LEN_OF_CMD_DIV + 1)){
 		CheckNull(typeOfCommand, "Ввёл что-то не то!\n", LACK_OF_ARGUMENTS);
 		*selectorPtr = CMD_DIV;
@@ -165,11 +170,10 @@ int DecomposeToCodeArray(label *arrayOfLabels, MyString *indexPtr, char *codePtr
 		int statusOfGetCommand = GetCommand(arrayOfLabels, indexPtr[count].PtrOnStartOfString, &param, command, typeOfCommand, &reg);
 		CheckNull(statusOfGetCommand, "Read error\n", READ_ERROR);
 		PRINT_LOG();
-		if      (IsLabel(arrayOfLabels, instructionPtr, command, &labelPtr)) 									 {PRINT_LOG();}
-		else if (IsCommandWithoutArguments(codePtr, instructionPtr, typeOfCommand, command, &selector)) 		 {PRINT_LOG();}
-		else if (IsCommandWithArguments(codePtr, instructionPtr, typeOfCommand, command, &selector, param, reg)) {PRINT_LOG();}
+		if      (IsLabel(arrayOfLabels, instructionPtr, command, &labelPtr)) 									 {}
+		else if (IsCommandWithoutArguments(codePtr, instructionPtr, typeOfCommand, command, &selector)) 		 {}
+		else if (IsCommandWithArguments(codePtr, instructionPtr, typeOfCommand, command, &selector, param, reg)) {}
 		else {
-			PRINT_LOG();
 			return UNRECOGNIZED_COMMAND;
 		}
 		
@@ -380,7 +384,8 @@ static int IsCommandWithArguments(char *codePtr, int *instructionPtr, char *type
 
 			if(((*selector) == CMD_JMP) || ((*selector) == CMD_JA) || ((*selector) == CMD_JAE) || ((*selector) == CMD_JB) ||
 			   ((*selector) == CMD_JBE) || ((*selector) == CMD_JE) || ((*selector) == CMD_JNE || ((*selector) == CMD_CALL))){
-				codePtr[(*instructionPtr)++] = param;
+				*((int *)(codePtr + (*instructionPtr))) = param;
+				*instructionPtr += 4;
 				PRINT_LOG();
 			}
 			if(((*typeOfCommand) & IMM_CONST) && ((*selector) != CMD_JMP) && ((*selector) != CMD_JA) && ((*selector) != CMD_JAE) && ((*selector) != CMD_JB) &&
@@ -414,7 +419,7 @@ static int CheckIsJump(label *arrayOfLabels, char *label, char *string, int *par
 		PRINT_LOG();
 		int statusOfsscanf = sscanf(label, "%d", param);
 		PRINT_LOG();
-		if (statusOfsscanf == 1) {PRINT_LOG();}
+		if (statusOfsscanf == 1) {}
 		else {
 			CheckNoNull((strlen(label)), "Не хватает аргумента у jmp\n", UNRECOGNIZED_COMMAND);
 			PRINT_LOG();
@@ -428,7 +433,7 @@ static int CheckIsJump(label *arrayOfLabels, char *label, char *string, int *par
 				}
 				else {
 					PRINT_LOG();
-					*param = -1;//это будет в каждой итерации
+					*param = -1;
 					if ((strlen(arrayOfLabels[i].name) == 0)) {
 						return 1;
 					}
