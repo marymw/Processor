@@ -4,7 +4,7 @@
 #include "Compiler.h"
 #include <stdlib.h>
 
-//почему целая куча пробелов
+//выделить больше под адрес
 int main(int argc, char *argv[]) {
 
 	CheckEqual(argc, 2, "No instruction file!\n", NO_FILE);
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 	int instructionPtr   = 0;
 	char typeOfCommand   = 0;
 	label *arrayOfLabels = (label *)calloc(MAX_NUM_OF_LABELS, sizeof(label));
-
+	
 	for (int i = 0; i < 10; i++){
 		arrayOfLabels[i].name = (char *)calloc(10, sizeof(char));
 		arrayOfLabels[i].address = -1;
@@ -37,15 +37,19 @@ int main(int argc, char *argv[]) {
  	CheckNullPtr(code, "code is undefined!\n", NULL_PTR_ERROR);
  	PRINT_LOG();
 
-	int statusDecomposeToCodeArray = DecomposeToCodeArray(&arrayOfLabels, index, code, numberOfStrings, &instructionPtr, &typeOfCommand);
+	int statusDecomposeToCodeArray = DecomposeToCodeArray(arrayOfLabels, index, code, numberOfStrings, &instructionPtr, &typeOfCommand);
 	CheckNull(statusDecomposeToCodeArray, "Failed to decompose into code array\n", NULL_PTR_ERROR);
 	PRINT_LOG();
 
 	instructionPtr = 0;
 
-	statusDecomposeToCodeArray = DecomposeToCodeArray(&arrayOfLabels, index, code, numberOfStrings, &instructionPtr, &typeOfCommand);
+	statusDecomposeToCodeArray = DecomposeToCodeArray(arrayOfLabels, index, code, numberOfStrings, &instructionPtr, &typeOfCommand);
 	CheckNull(statusDecomposeToCodeArray, "Failed to decompose into code array\n", NULL_PTR_ERROR);
 	PRINT_LOG();
+	for (int i = 0; i < 10; i++){
+		printf("%d %s %d\n", i, arrayOfLabels[i].name, arrayOfLabels[i].address);
+	}
+	
 
 	int statusPrintToCodeFile = PrintToCodeFile(code, instructionPtr);
 	CheckNull(statusPrintToCodeFile, "Failed to print the code array into fail\n", NULL_PTR_ERROR);
@@ -54,6 +58,7 @@ int main(int argc, char *argv[]) {
 	free(index);
 	free(buffer);
 	fclose(asmFile);
+	free(arrayOfLabels);
 	
 	return 0;
 
