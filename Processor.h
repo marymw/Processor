@@ -5,17 +5,27 @@
 
 //как совместно использовать два хедера?
 const int  LEN_OF_COMMAND = 10;
-const char HLT[]  = "hlt";
-const char PUSH[] = "push";
-const char POP[]  = "pop";
-const char ADD[]  = "add";
-const char SUB[]  = "sub";
-const char MUL[]  = "mul";
-const char DIV[]  = "div";
-const char OUT[]  = "out";
-const char VER[]  = "ver";
-const char DMP[]  = "dmp";
-const char IN[]   = "in";
+const char HLT[]   = "hlt";
+const char PUSH[]  = "push";
+const char POP[]   = "pop";
+const char ADD[]   = "add";
+const char SUB[]   = "sub";
+const char MUL[]   = "mul";
+const char DIV[]   = "div";
+const char OUT[]   = "out";
+const char VER[]   = "ver";
+const char DMP[]   = "dmp";
+const char IN[]    = "in";
+const char JMP[]   = "jmp";
+const char LABEL[] = "label";
+const char JA[]    = "ja";
+const char JAE[]   = "jae";
+const char JB[]    = "jb";
+const char JBE[]   = "jbe";
+const char JE[]    = "je";
+const char JNE[]   = "jne";
+const char CALL[]  = "call";
+const char RET[]   = "ret";
 
 //sin cos sqrt
 
@@ -30,22 +40,33 @@ enum ProcErrors {
 	RIDE_ERROR,			     //7
 	CLOSE_ERROR,			 //8
 	RUNTIME_ERROR,			 //9
-	READ_ARGS_ERROR			 //10
+	READ_ARGS_ERROR,		 //10
+	NO_FILE					 //11
 };
 
 
 enum CommandsOfCalculator{
-	CMD_HLT  = 0,
-	CMD_PUSH = 1,
-	CMD_POP  = 2,
-	CMD_ADD  = 3,
- 	CMD_SUB  = 4,
-	CMD_MUL  = 5,
-	CMD_DIV  = 6,
-	CMD_OUT  = 7,
-	CMD_VER  = 8,
-	CMD_DMP  = 9,
-	CMD_IN   = 10
+	CMD_HLT   = 0,
+	CMD_PUSH  = 1,
+	CMD_POP   = 2,
+	CMD_ADD   = 3,
+ 	CMD_SUB   = 4,
+	CMD_MUL   = 5,
+	CMD_DIV   = 6,
+	CMD_OUT   = 7,
+	CMD_VER   = 8,
+	CMD_DMP   = 9,
+	CMD_IN    = 10,
+	CMD_JMP   = 11,
+	CMD_LABEL = 12,
+	CMD_JA	  = 13,
+	CMD_JAE   = 14,
+	CMD_JB    = 15,
+	CMD_JBE   = 16,
+	CMD_JE    = 17,
+	CMD_JNE   = 18,
+	CMD_CALL  = 19,
+	CMD_RET   = 20
 };
 
 
@@ -60,14 +81,31 @@ enum LenOfCommands{
 	LEN_OF_CMD_OUT  = 3,
 	LEN_OF_CMD_VER  = 3,
 	LEN_OF_CMD_DMP  = 3,
-	LEN_OF_CMD_IN   = 2
+	LEN_OF_CMD_IN   = 2,
+	LEN_OF_CMD_JMP  = 3,
+	LEN_OF_CMD_JA   = 2,
+	LEN_OF_CMD_JAE  = 3,
+	LEN_OF_CMD_JB   = 2,
+	LEN_OF_CMD_JBE  = 3,
+	LEN_OF_CMD_JE   = 2,
+	LEN_OF_CMD_JNE  = 3,
+	LEN_OF_CMD_CALL = 4,
+	LEN_OF_CMD_RET  = 3
 };
+
+
+enum TypesOfCommands {
+	COMMAND_WITHOUT_ARGUMENTS, //0
+	COMMAND_WITH_ARGUMENTS     //1
+};
+
 
 
 struct Processor {
 
 	int    REGS[4];
 	struct Stack stackOfProc;
+	struct Stack stackOfReturns;
 	char  *code;
 	int    instructionPtr;
 	int   *RAM;
@@ -77,9 +115,22 @@ struct Processor {
 //128 = 10000000
 //64  = 01000000
 //32  = 00100000
-const char RAM_CONST = 128;
-const char REG_CONST = 64;
-const char IMM_CONST = 32;
+const unsigned char RAM_CONST      		  = 128;
+const unsigned char REG_CONST     		  = 64;
+const unsigned char IMM_CONST     		  = 32;
+const int           LEN_OF_INT 	   		  = 4;
+const int           ASCII_BEFORE_A        = 96;
+const int 			MAX_LEN_OF_CODE_ARRAY = 200;
+
+#define DEBUG5 1
+
+#ifdef DEBUG5
+#define PRINT_LOG() printf("Я в функции %s, на строчке %d\n", __FUNCTION__, __LINE__);
+#define DEBUG_PRINT_PROC(str) printf(str);
+#else
+#define PRINT_LOG() printf("");
+#define DEBUG_PRINT_PROC(str) printf("");
+#endif
 
 
 #define CheckNullPtr(param, string, nameOfError) do {			\
@@ -105,18 +156,22 @@ const char IMM_CONST = 32;
 															}				       \
 								 			  			} while(0)
 
+#define CheckNoEqual(param1, param2, string, nameOfError) do {				       \
+															if (param1 == param2) {\
+																printf(string);    \
+																return nameOfError;\
+															}				       \
+								 			  			} while(0)
 
 #define CheckNoNull(param, string, nameOfError) do {				       \
 													if (param == 0) {	   \
 														printf(string);    \
 														return nameOfError;\
 													}				       \
-								 			    } while(0)
+								 			    } while(0);
 
-
-
-//const int MAX_LEN_OF_CODE_ARRAY = 200;//норм???
+#define DEBUG_PRINT(string, arg1, arg2) printf(string, arg1, arg2);
 
 int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile);
 
-#endif PROC_H
+#endif 
