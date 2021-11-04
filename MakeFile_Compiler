@@ -1,0 +1,23 @@
+CC=g++
+
+CFLAGS=-c -Wextra -Wall -Wpedantic 
+
+all: COMPILER
+
+COMPILER: MainCompilerBin.o FuncCompilerBin.o FuncOneg.o FuncLifo.o
+	$(CC) MainCompilerBin.o FuncCompilerBin.o FuncOneg.o FuncLifo.o -o COMPILER
+
+MainCompilerBin.o: MainCompilerBin.cpp
+	$(CC) $(CFLAGS) MainCompilerBin.cpp
+
+FuncCompilerBin.o: FuncCompilerBin.cpp
+	$(CC) $(CFLAGS) FuncCompilerBin.cpp
+
+FuncOneg.o: FuncOneg.cpp
+	$(CC) $(CFLAGS) FuncOneg.cpp
+
+FuncLifo.o: FuncLifo.cpp
+	$(CC) $(CFLAGS) FuncLifo.cpp
+
+clean:
+	rm -rf *.o COMPILER
