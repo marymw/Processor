@@ -13,6 +13,7 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 			
 			case CMD_HLT: {
 				printf("я в функции %s на строчке %d\n", __FUNCTION__, __LINE__);
+				PRINT_LOG();
 				return NO_ERRORS;
 			}
 		
@@ -145,7 +146,81 @@ int ExecuteCommand(Processor *SomeProcessorPtr, const int sizeOfFile){
 				SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
 				break;
 			}
-			
+			case CMD_JA: {
+				double arg1 = StackPop(&(SomeProcessorPtr->stackOfProc));
+				double arg2 = StackPop(&(SomeProcessorPtr->stackOfProc));
+				if (arg1 > arg2){
+					SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
+				}
+				else {
+					SomeProcessorPtr->instructionPtr += 2;
+				}
+				break;
+			}
+			case CMD_JAE: {
+				double arg1 = StackPop(&(SomeProcessorPtr->stackOfProc));
+				double arg2 = StackPop(&(SomeProcessorPtr->stackOfProc));
+				if (arg1 >= arg2){
+					SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
+				}
+				else {
+					SomeProcessorPtr->instructionPtr += 2;
+				}
+				break;
+			}
+			case CMD_JB: {
+				double arg1 = StackPop(&(SomeProcessorPtr->stackOfProc));
+				double arg2 = StackPop(&(SomeProcessorPtr->stackOfProc));
+				if (arg1 < arg2){
+					SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
+				}
+				else {
+					SomeProcessorPtr->instructionPtr += 2;
+				}
+				break;
+			}
+			case CMD_JBE: {
+				double arg1 = StackPop(&(SomeProcessorPtr->stackOfProc));
+				double arg2 = StackPop(&(SomeProcessorPtr->stackOfProc));
+				if (arg1 <= arg2){
+					SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
+				}
+				else {
+					SomeProcessorPtr->instructionPtr += 2;
+				}
+				break;
+			}
+			case CMD_JE: {
+				double arg1 = StackPop(&(SomeProcessorPtr->stackOfProc));
+				double arg2 = StackPop(&(SomeProcessorPtr->stackOfProc));
+				if (arg1 == arg2){
+					SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
+				}
+				else {
+					SomeProcessorPtr->instructionPtr += 2;
+				}
+				break;
+			}
+			case CMD_JNE: {
+				double arg1 = StackPop(&(SomeProcessorPtr->stackOfProc));
+				double arg2 = StackPop(&(SomeProcessorPtr->stackOfProc));
+				if (arg1 != arg2){
+					SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
+				}
+				else {
+					SomeProcessorPtr->instructionPtr += 2;
+				}
+				break;
+			}
+			case CMD_CALL: {
+				StackPush(&(SomeProcessorPtr->stackOfReturns), SomeProcessorPtr->instructionPtr + 2);
+				SomeProcessorPtr->instructionPtr = SomeProcessorPtr->code[SomeProcessorPtr->instructionPtr + 1];
+				break;
+			}//сделать аргумент jumpa 4 байта
+			case CMD_RET: {
+				SomeProcessorPtr->instructionPtr = StackPop(&(SomeProcessorPtr->stackOfReturns));
+				break;
+			}
 			default:{
 				printf("Неверная команда\n");
 				return UNRECOGNIZED_COMMAND;
